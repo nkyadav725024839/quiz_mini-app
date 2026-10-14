@@ -4,14 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AI Quiz Game Mini App</title>
-    <!-- CSS File Link -->
     <link rel="stylesheet" href="style.css">
 </head>
 <body class="theme-dark">
 
     <div class="quiz-container">
         
-        <!-- TOP CONTROL MENU -->
         <div class="top-bar">
             <div class="user-pill" id="user-pill">
                 <img src="https://ui-avatars.com" id="user-avatar" alt="DP">
@@ -20,7 +18,6 @@
             <button class="settings-btn" id="theme-trigger-btn">🎨</button>
         </div>
 
-        <!-- THEME INTERACTIVE OVERLAY POPUP -->
         <div class="theme-overlay" id="theme-overlay">
             <div class="theme-modal">
                 <h3>Choose Your Theme 🎨</h3>
@@ -35,7 +32,6 @@
             </div>
         </div>
 
-        <!-- START SCREEN -->
         <div id="start-screen" class="screen active">
             <h1>🎲 प्रिमियम क्विज़ गेम</h1>
             <p class="subtitle">अपनी तैयारी को परखें और स्कोर सुधारें!</p>
@@ -52,7 +48,6 @@
             <button class="btn" id="start-btn">क्विज़ शुरू करें</button>
         </div>
 
-        <!-- QUIZ SCREEN -->
         <div id="quiz-screen" class="screen">
             <div class="quiz-header">
                 <span id="question-counter">प्रश्न: 1/5</span>
@@ -65,16 +60,13 @@
 
             <div id="question-text" class="question-text">प्रश्न यहाँ लोड होगा...</div>
             
-            <ul id="options-list" class="options-list">
-                <!-- JavaScript handles option injection here -->
-            </ul>
+            <ul id="options-list" class="options-list"></ul>
 
             <div id="explanation-box" class="explanation-box"></div>
 
             <button id="next-btn" class="btn" style="display: none;">अगला प्रश्न ➡️</button>
         </div>
 
-        <!-- RESULT SCREEN -->
         <div id="result-screen" class="screen">
             <h1>🏁 क्विज़ समाप्त!</h1>
             <p class="subtitle">बधाई हो <span id="result-user-name" style="color: #a5b4fc; font-weight: bold;">Player</span>, यहाँ आपका अंतिम परिणाम है</p>
@@ -97,23 +89,47 @@
 
     </div>
 
-    <!-- 🌐 Official Telegram SDK Loaded First synchronously -->
-    <script src="https://telegram.org"></script>
-    
-    <!-- ⚡ Dynamic initialization engine to bind module tracking safety -->
+    <script>
+        if (!window.Telegram || !window.Telegram.WebApp) {
+            window.Telegram = {
+                WebApp: {
+                    initDataUnsafe: {
+                        user: {
+                            id: 123456789,
+                            first_name: "Nikhil",
+                            last_name: "Yadav",
+                            username: "nkyadav725024839",
+                            language_code: "hi",
+                            photo_url: ""
+                        }
+                    },
+                    colorScheme: "light",
+                    ready: function () {
+                        console.log("Mock Telegram.WebApp.ready()");
+                    },
+                    expand: function () {
+                        console.log("Mock Telegram.WebApp.expand()");
+                    }
+                }
+            };
+            console.log("Mock Telegram WebApp loaded for local testing.");
+        }
+    </script>
+
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+
     <script type="module">
         import { initAppEngine } from './script.js';
-        
+
         function bootstrap() {
-            // Force WebApp execution context updates directly before loading script modules
-            if (window.Telegram?.WebApp) {
-                window.Telegram.WebApp.ready();
-                window.Telegram.WebApp.expand();
+            const tg = window.Telegram?.WebApp;
+            if (tg) {
+                if (typeof tg.ready === 'function') tg.ready();
+                if (typeof tg.expand === 'function') tg.expand();
             }
             initAppEngine();
         }
 
-        // Wait until window components are verified stable on screen
         if (document.readyState === 'loading') {
             document.addEventListener('DOMContentLoaded', bootstrap);
         } else {
