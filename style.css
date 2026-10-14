@@ -130,10 +130,27 @@ h1 { font-size: 24px; text-align: center; margin-bottom: 10px; }
     border-radius: 0 12px 12px 0; margin-bottom: 25px; font-size: 14px; display: none;
 }
 
+.quiz-nav {
+    display: flex;
+    gap: 12px;
+}
+
+.nav-btn {
+    flex: 1;
+    width: auto;
+}
+
+.secondary-btn {
+    background-color: #64748b;
+}
+
+.secondary-btn:hover {
+    background-color: #475569;
+}
+
 .result-score { font-size: 48px; font-weight: 800; text-align: center; color: #34d399; margin: 15px 0; }
 .stat-box { background-color: rgba(255, 255, 255, 0.05); padding: 15px; border-radius: 12px; margin-bottom: 20px; display: flex; justify-content: space-around; }
 .stat-item span { display: block; font-size: 12px; color: var(--text-muted); margin-bottom: 4px; }
 .stat-item strong { font-size: 18px; }
 .text-success { color: var(--success-color); }
 .text-error { color: var(--error-color); }
-  
