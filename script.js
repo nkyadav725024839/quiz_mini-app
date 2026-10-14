@@ -8,6 +8,7 @@ let timerInterval;
 let timeLeft = 15;
 const timeLimit = 15;
 let globalPlayerName = "Player";
+const answeredState = [];
 
 export function initAppEngine() {
     console.log("Bootstrapping Mini App Engine Core...");
@@ -16,6 +17,7 @@ export function initAppEngine() {
 
     document.getElementById('start-btn').onclick = startQuiz;
     document.getElementById('next-btn').onclick = nextQuestion;
+    document.getElementById('prev-btn').onclick = previousQuestion;
     document.getElementById('restart-btn').onclick = restartQuiz;
 
     const overlay = document.getElementById('theme-overlay');
@@ -101,6 +103,7 @@ function startQuiz() {
     currentQuestionIdx = 0;
     score = 0;
     wrongAnswers = 0;
+    answeredState.length = 0;
     switchScreen('quiz-screen');
     loadQuestion();
 }
@@ -109,10 +112,16 @@ function loadQuestion() {
     clearInterval(timerInterval);
     timeLeft = timeLimit;
     document.getElementById('time-left').innerText = timeLeft;
-    document.getElementById('next-btn').style.display = 'none';
     document.getElementById('explanation-box').style.display = 'none';
 
     const currentQuiz = quizData[currentQuestionIdx];
+    const currentAnswer = answeredState[currentQuestionIdx];
+    const nextBtn = document.getElementById('next-btn');
+    const prevBtn = document.getElementById('prev-btn');
+
+    prevBtn.style.display = currentQuestionIdx > 0 ? 'block' : 'none';
+    nextBtn.style.display = currentAnswer ? 'block' : 'none';
+    nextBtn.innerText = currentQuestionIdx === quizData.length - 1 ? 'परिणाम देखें ✅' : 'अगला प्रश्न ➡️';
 
     document.getElementById('question-counter').innerText = `प्रश्न: ${currentQuestionIdx + 1}/${quizData.length}`;
     const progressPercent = (currentQuestionIdx / quizData.length) * 100;
@@ -127,11 +136,32 @@ function loadQuestion() {
         const li = document.createElement('li');
         li.className = 'option-item';
         li.innerText = option;
-        li.onclick = () => selectOption(idx, li);
+
+        if (currentAnswer) {
+            li.classList.add('disabled');
+
+            if (idx === currentAnswer.selectedIdx) {
+                li.classList.add(currentAnswer.isCorrect ? 'correct' : 'wrong');
+            }
+
+            if (idx === currentQuiz.correct && currentAnswer.selectedIdx !== currentQuiz.correct) {
+                li.classList.add('correct');
+            }
+        }
+
+        li.onclick = () => {
+            if (currentAnswer) return;
+            selectOption(idx, li);
+        };
+
         optionsList.appendChild(li);
     });
 
-    startTimer();
+    if (currentAnswer) {
+        showExplanation(currentQuiz.explanation, true);
+    } else {
+        startTimer();
+    }
 }
 
 function startTimer() {
@@ -147,13 +177,23 @@ function startTimer() {
 }
 
 function selectOption(selectedIdx, selectedElement) {
+    if (answeredState[currentQuestionIdx]) {
+        return;
+    }
+
     clearInterval(timerInterval);
     const currentQuiz = quizData[currentQuestionIdx];
     const options = document.querySelectorAll('.option-item');
+    const isCorrect = selectedIdx === currentQuiz.correct;
+
+    answeredState[currentQuestionIdx] = {
+        selectedIdx,
+        isCorrect
+    };
 
     options.forEach(opt => opt.classList.add('disabled'));
 
-    if (selectedIdx === currentQuiz.correct) {
+    if (isCorrect) {
         selectedElement.classList.add('correct');
         score++;
     } else {
@@ -162,32 +202,52 @@ function selectOption(selectedIdx, selectedElement) {
         wrongAnswers++;
     }
 
-    showExplanation(currentQuiz.explanation);
+    showExplanation(currentQuiz.explanation, true);
 }
 
 function autoTimeOut() {
+    if (answeredState[currentQuestionIdx]) {
+        return;
+    }
+
     const currentQuiz = quizData[currentQuestionIdx];
     const options = document.querySelectorAll('.option-item');
+
+    answeredState[currentQuestionIdx] = {
+        selectedIdx: -1,
+        isCorrect: false
+    };
 
     options.forEach(opt => opt.classList.add('disabled'));
     options[currentQuiz.correct].classList.add('correct');
     wrongAnswers++;
 
-    showExplanation(`समय समाप्त! सही उत्तर: ${currentQuiz.explanation}`);
+    showExplanation(`समय समाप्त! सही उत्तर: ${currentQuiz.explanation}`, true);
 }
 
-function showExplanation(text) {
+function showExplanation(text, forceShow = false) {
     const expBox = document.getElementById('explanation-box');
+    const nextBtn = document.getElementById('next-btn');
+
     if (text) {
         expBox.innerHTML = `<b>📖 विवरण:</b> ${text}`;
         expBox.style.display = 'block';
     }
-    document.getElementById('next-btn').style.display = 'block';
+
+    nextBtn.style.display = forceShow || text ? 'block' : 'none';
+    nextBtn.innerText = currentQuestionIdx === quizData.length - 1 ? 'परिणाम देखें ✅' : 'अगला प्रश्न ➡️';
+}
+
+function previousQuestion() {
+    if (currentQuestionIdx > 0) {
+        currentQuestionIdx--;
+        loadQuestion();
+    }
 }
 
 function nextQuestion() {
-    currentQuestionIdx++;
-    if (currentQuestionIdx < quizData.length) {
+    if (currentQuestionIdx < quizData.length - 1) {
+        currentQuestionIdx++;
         loadQuestion();
     } else {
         showResults();
@@ -206,4 +266,4 @@ function showResults() {
 
 function restartQuiz() {
     switchScreen('start-screen');
-        }
+            }
