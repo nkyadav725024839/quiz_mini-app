@@ -90,9 +90,6 @@ function syncProfileData() {
     }
 }
 
-// ====================================================================
-// 🎮 QUIZ PLAYGROUND ENGINE MECHANICS
-// ====================================================================
 function switchScreen(screenId) {
     document.querySelectorAll('.screen').forEach(screen => {
         screen.classList.remove('active');
