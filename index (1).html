@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Quiz Game Mini App</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="theme-dark">
+
+    <div class="quiz-container">
+        
+        <div class="top-bar">
+            <div class="user-pill" id="user-pill">
+                <img src="https://ui-avatars.com" id="user-avatar" alt="DP">
+                <span id="user-display-name">Loading...</span>
+            </div>
+            <button class="settings-btn" id="theme-trigger-btn">🎨</button>
+        </div>
+
+        <div class="theme-overlay" id="theme-overlay">
+            <div class="theme-modal">
+                <h3>Choose Your Theme 🎨</h3>
+                <div class="theme-grid">
+                    <button class="theme-opt-btn" data-theme="theme-light-blue">Light Blue</button>
+                    <button class="theme-opt-btn data-active" data-theme="theme-dark">Dark Mode</button>
+                    <button class="theme-opt-btn" data-theme="theme-green">Green</button>
+                    <button class="theme-opt-btn" data-theme="theme-purple">Purple</button>
+                    <button class="theme-opt-btn" data-theme="theme-ocean">Ocean</button>
+                </div>
+                <button class="btn close-modal-btn" id="theme-close-btn">Close</button>
+            </div>
+        </div>
+
+        <div id="start-screen" class="screen active">
+            <h1>🎲 प्रिमियम क्विज़ गेम</h1>
+            <p class="subtitle">अपनी तैयारी को परखें और स्कोर सुधारें!</p>
+            <div class="emoji-banner">🏆</div>
+            
+            <div class="profile-card">
+                <h4>💞 Your Profile 💞</h4>
+                <p>👤 नाम: <span id="meta-user-name" style="font-weight: bold; color: #a5b4fc;">Loading...</span></p>
+                <p>🏷️ यूज़रनेम: <span id="meta-user-username">Loading...</span></p>
+                <p>🪪 यूज़र ID: <span id="meta-user-id" style="font-family: monospace;">Loading...</span></p>
+                <p>🌐 भाषा: <span id="meta-user-lang">Loading...</span></p>
+            </div>
+
+            <button class="btn full-width" id="start-btn">क्विज़ शुरू करें</button>
+        </div>
+
+        <div id="quiz-screen" class="screen">
+            <div class="quiz-header">
+                <span id="question-counter">प्रश्न: 1/5</span>
+                <span class="timer">⏰ <span id="time-left">15</span>s</span>
+            </div>
+            
+            <div class="progress-bar-container">
+                <div id="progress-bar" class="progress-bar"></div>
+            </div>
+
+            <div id="question-text" class="question-text">प्रश्न यहाँ लोड होगा...</div>
+            
+            <ul id="options-list" class="options-list"></ul>
+
+            <div id="explanation-box" class="explanation-box"></div>
+
+            <div class="quiz-nav">
+                <button id="prev-btn" class="btn nav-btn secondary-btn" style="display: none;">⬅️ पिछला</button>
+                <button id="finish-btn" class="btn nav-btn secondary-btn">समाप्त करें ⏹️</button>
+                <button id="next-btn" class="btn nav-btn" style="display: none;">अगला प्रश्न ➡️</button>
+            </div>
+        </div>
+
+        <div id="result-screen" class="screen">
+            <h1>🏁 क्विज़ समाप्त!</h1>
+            <p class="subtitle">बधाई हो <span id="result-user-name" style="color: #a5b4fc; font-weight: bold;">Player</span>, यहाँ आपका अंतिम परिणाम �[...]</p>
+            
+            <div id="result-score" class="result-score">0/5</div>
+            
+            <div class="stat-box">
+                <div class="stat-item">
+                    <span>सही जवाब</span>
+                    <strong id="stat-correct" class="text-success">0</strong>
+                </div>
+                <div class="stat-item">
+                    <span>गलत जवाब</span>
+                    <strong id="stat-wrong" class="text-error">0</strong>
+                </div>
+            </div>
+
+            <button class="btn full-width" id="restart-btn">फिर से खेलें ✨</button>
+        </div>
+
+    </div>
+
+    <script>
+        if (!window.Telegram || !window.Telegram.WebApp) {
+            window.Telegram = {
+                WebApp: {
+                    initDataUnsafe: {
+                        user: {
+                            id: 123456789,
+                            first_name: "Nikhil",
+                            last_name: "Yadav",
+                            username: "nkyadav725024839",
+                            language_code: "hi",
+                            photo_url: ""
+                        }
+                    },
+                    colorScheme: "light",
+                    ready: function () {
+                        console.log("Mock Telegram.WebApp.ready()");
+                    },
+                    expand: function () {
+                        console.log("Mock Telegram.WebApp.expand()");
+                    }
+                }
+            };
+            console.log("Mock Telegram WebApp loaded for local testing.");
+        }
+    </script>
+
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+
+    <script type="module">
+        import { initAppEngine } from './script.js';
+
+        function bootstrap() {
+            const tg = window.Telegram?.WebApp;
+            if (tg) {
+                if (typeof tg.ready === 'function') tg.ready();
+                if (typeof tg.expand === 'function') tg.expand();
+            }
+            initAppEngine();
+        }
+
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', bootstrap);
+        } else {
+            bootstrap();
+        }
+    </script>
+</body>
+</html>
