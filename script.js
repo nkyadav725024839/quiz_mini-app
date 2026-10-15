@@ -4,7 +4,8 @@ import { quizData } from './question/questions.js';
 import { GoogleGenAI } from "https://esm.run";
 
 // ⚠️ APNI GEMINI API KEY YAHAAN DAALEIN (Google AI Studio se generate karein)
-const GEMINI_API_KEY = AQ.Ab8RN6K0rcU8hvfzJkR9H-PKw6ofCVzBu2BePkd58GzKucuB9w; 
+// Sahi tarika (Quotes ke sath):
+const GEMINI_API_KEY = "AQ.Ab8RN6K0rcU8hvfzJkR9H-PKw6ofCVzBu2BePkd58GzKucuB9w";
 const ai = new GoogleGenAI({ apiKey: GEMINI_API_KEY });
 
 // 2. Static quizData ko backup me rakh kar dynamic array banayi
