@@ -101,11 +101,14 @@ h1 { font-size: 24px; text-align: center; margin-bottom: 10px; }
 .subtitle { text-align: center; color: var(--text-muted); margin-bottom: 25px; font-size: 14px; }
 .emoji-banner { text-align: center; margin-bottom: 25px; font-size: 48px; }
 
+/* General button */
 .btn {
     background-color: var(--primary-color); color: white; border: none; padding: 14px 20px;
-    font-size: 16px; font-weight: bold; border-radius: 12px; width: 100%; cursor: pointer;
+    font-size: 16px; font-weight: bold; border-radius: 12px; cursor: pointer;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.15); transition: background 0.2s, transform 0.1s;
 }
+/* apply full width only to elements needing it */
+.full-width { width: 100%; display: block; }
 .btn:hover { background-color: var(--primary-hover); }
 .btn:active { transform: scale(0.98); }
 
@@ -138,6 +141,8 @@ h1 { font-size: 24px; text-align: center; margin-bottom: 10px; }
 .nav-btn {
     flex: 1;
     width: auto;
+    padding: 12px 14px;
+    font-size: 14px;
 }
 
 .secondary-btn {
