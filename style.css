@@ -63,12 +63,14 @@ body {
 }
 .settings-btn:hover { transform: rotate(45deg); }
 
+/* Overlay Popup Controllers for Themes & API Modules */
 .theme-overlay {
     position: fixed; top: 0; left: 0; width: 100%; height: 100%;
     background: rgba(0,0,0,0.6); display: flex; justify-content: center;
     align-items: center; z-index: 1000; opacity: 0; pointer-events: none; transition: all 0.3s ease;
 }
-.theme-overlay.open { opacity: 1; pointer-events: auto; }
+.theme-overlay.open, #api-overlay.open { opacity: 1; pointer-events: auto; }
+
 .theme-modal {
     background: var(--card-bg); border: 1px solid rgba(255,255,255,0.15);
     padding: 25px; border-radius: 16px; width: 90%; max-width: 400px; text-align: center;
@@ -101,13 +103,12 @@ h1 { font-size: 24px; text-align: center; margin-bottom: 10px; }
 .subtitle { text-align: center; color: var(--text-muted); margin-bottom: 25px; font-size: 14px; }
 .emoji-banner { text-align: center; margin-bottom: 25px; font-size: 48px; }
 
-/* General button */
+/* General button styling modules */
 .btn {
     background-color: var(--primary-color); color: white; border: none; padding: 14px 20px;
     font-size: 16px; font-weight: bold; border-radius: 12px; cursor: pointer;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.15); transition: background 0.2s, transform 0.1s;
 }
-/* apply full width only to elements needing it */
 .full-width { width: 100%; display: block; }
 .btn:hover { background-color: var(--primary-hover); }
 .btn:active { transform: scale(0.98); }
