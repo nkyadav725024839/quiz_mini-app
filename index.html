@@ -15,7 +15,11 @@
                 <img id="user-avatar" src="" alt="User Avatar">
                 <span id="user-display-name">Loading...</span>
             </div>
-            <button id="theme-trigger-btn" class="settings-btn" title="थीम बदलें">⚙️</button>
+            <div style="display: flex; gap: 8px;">
+                <!-- ✨ NEW: API Manager Trigger Button -->
+                <button id="api-trigger-btn" class="settings-btn" title="API Key Setup" style="font-size: 16px;">🔑</button>
+                <button id="theme-trigger-btn" class="settings-btn" title="थीम बदलें">⚙️</button>
+            </div>
         </div>
 
         <!-- 1. HOME SCREEN (START ENGINE CONTEXT) -->
@@ -24,9 +28,9 @@
             <h1>स्मार्ट AI क्विज़ गेम</h1>
             <p class="subtitle">अपनी पसंद का कोई भी विषय खोजें या नीचे दिए बटन से डिफ़ॉल्ट क्विज़ शुरू करें!</p>
 
-            <!-- ✨ NEW: AI Generation Controls -->
+            <!-- AI Generation Controls -->
             <div style="margin-bottom: 25px; text-align: left;">
-                <input type="text" id="topic-search-input" placeholder="विषय का naam लिखें (जैसे: विज्ञान, इतिहास, JavaScript)..." 
+                <input type="text" id="topic-search-input" placeholder="विषय का नाम लिखें (जैसे: विज्ञान, इतिहास, JavaScript)..." 
                        style="width: 100%; padding: 14px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.15); background: rgba(0,0,0,0.25); color: var(--text-light); font-size: 14px; box-sizing: border-box; outline: none;">
                 
                 <button id="ai-generate-btn" class="btn full-width" style="background: linear-gradient(135deg, #6366f1, #4f46e5); margin-top: 10px;">
@@ -107,12 +111,32 @@
             <h3>🎨 एक सुंदर थीम चुनें</h3>
             <div class="theme-grid">
                 <button class="theme-opt-btn data-active" data-theme="theme-dark">डार्क नाइट</button>
-                <button class="theme-opt-btn" data-theme="theme-light-blue">लाइट ब्लू</button>
+                <button class="theme-opt-btn" data-theme="theme-light-blue">लाइट BLUE</button>
                 <button class="theme-opt-btn" data-theme="theme-green">फॉरेस्ट ग्रीन</button>
                 <button class="theme-opt-btn" data-theme="theme-purple">रॉयल पर्पल</button>
                 <button class="theme-opt-btn" data-theme="theme-ocean">ओशन वेव</button>
             </div>
             <button id="theme-close-btn" class="btn full-width close-modal-btn">बंद करें</button>
+        </div>
+    </div>
+
+    <!-- ✨ NEW: 5. SECURE API KEY MANAGER OVERLAY MODAL -->
+    <div id="api-overlay" class="theme-overlay">
+        <div class="theme-modal" style="text-align: left;">
+            <h3 style="text-align: center; margin-bottom: 10px;">🔑 Gemini API Settings</h3>
+            <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 15px; text-align: center; line-height: 1.4;">
+                आपकी API Key आपके ही ब्राउज़र (LocalStorage) में सुरक्षित सेव होती है। यह किसी सर्वर पर नहीं भेजी जाती।
+            </p>
+            
+            <label style="font-size: 13px; font-weight: bold; display: block; margin-bottom: 6px;">अपनी Gemini API Key डालें:</label>
+            <input type="password" id="user-api-key-input" placeholder="AI Studio से मिली Key पेस्ट करें (AI_Db...)" 
+                   style="width: 100%; padding: 12px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.15); background: rgba(0,0,0,0.2); color: var(--text-light); font-size: 14px; box-sizing: border-box; margin-bottom: 15px; outline: none;">
+            
+            <div style="display: flex; gap: 10px;">
+                <button id="save-api-btn" class="btn" style="flex: 1; padding: 12px; font-size: 14px; background-color: var(--success-color);">सहेजें (Save)</button>
+                <button id="delete-api-btn" class="btn secondary-btn" style="padding: 12px; font-size: 14px; background-color: var(--error-color);">हटाएं</button>
+            </div>
+            <button id="api-close-btn" class="btn full-width close-modal-btn" style="margin-top: 15px;">बंद करें</button>
         </div>
     </div>
 
