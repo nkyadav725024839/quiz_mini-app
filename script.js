@@ -1,14 +1,8 @@
 // script.js - BHAAG 1
 import { quizData } from './question/questions.js';
-// 1. ESM ke zariye official Google Gen AI SDK ko import kiya
 import { GoogleGenAI } from "https://esm.run";
 
-// ⚠️ APNI GEMINI API KEY YAHAAN DAALEIN (Google AI Studio se generate karein)
-// Sahi tarika (Quotes ke sath):
-const GEMINI_API_KEY = "AQ.Ab8RN6K0rcU8hvfzJkR9H-PKw6ofCVzBu2BePkd58GzKucuB9w";
-const ai = new GoogleGenAI({ apiKey: GEMINI_API_KEY });
-
-// 2. Static quizData ko backup me rakh kar dynamic array banayi
+// Ab code me koi default API key hardcoded nahi rahegi (Zero Hacking Risk)
 let dynamicQuizData = [];
 
 let currentQuestionIdx = 0;
@@ -24,14 +18,14 @@ export function initAppEngine() {
     console.log("Bootstrapping Mini App Engine Core...");
 
     syncProfileData();
+    loadSavedApiKey(); // Pehle se saved key ko input box me load karega
 
-    // Purana standard button jo local file se chalega
+    // Standard Buttons Click Listeners
     document.getElementById('start-btn').onclick = () => {
-        dynamicQuizData = [...quizData]; // Local questions ko dynamic array me load kiya
+        dynamicQuizData = [...quizData]; 
         startQuiz();
     };
     
-    // ✨ AI Quiz Generation Button Trigger
     const aiBtn = document.getElementById('ai-generate-btn');
     if (aiBtn) {
         aiBtn.onclick = generateAIQuiz;
@@ -41,7 +35,6 @@ export function initAppEngine() {
     document.getElementById('prev-btn').onclick = previousQuestion;
     document.getElementById('restart-btn').onclick = restartQuiz;
     
-    // Finish button - finish anytime and show results
     const finishBtn = document.getElementById('finish-btn');
     if (finishBtn) {
         finishBtn.onclick = () => {
@@ -50,9 +43,18 @@ export function initAppEngine() {
         };
     }
 
-    const overlay = document.getElementById('theme-overlay');
-    document.getElementById('theme-trigger-btn').onclick = () => overlay.classList.add('open');
-    document.getElementById('theme-close-btn').onclick = () => overlay.classList.remove('open');
+    // Theme Modal Controls
+    const themeOverlay = document.getElementById('theme-overlay');
+    document.getElementById('theme-trigger-btn').onclick = () => themeOverlay.classList.add('open');
+    document.getElementById('theme-close-btn').onclick = () => themeOverlay.classList.remove('open');
+
+    // ✨ NEW: API Modal Overlay Management
+    const apiOverlay = document.getElementById('api-overlay');
+    document.getElementById('api-trigger-btn').onclick = () => apiOverlay.classList.add('open');
+    document.getElementById('api-close-btn').onclick = () => apiOverlay.classList.remove('open');
+    
+    document.getElementById('save-api-btn').onclick = saveApiKey;
+    document.getElementById('delete-api-btn').onclick = deleteApiKey;
 
     document.querySelectorAll('.theme-opt-btn').forEach(btn => {
         btn.onclick = (e) => {
@@ -65,8 +67,44 @@ export function initAppEngine() {
     });
 }
 
-// ✨ Gemini API Call aur Data Extraction
+// ✨ NEW HELPER FUNCTIONS: LocalStorage Security Vault Logic
+function saveApiKey() {
+    const keyInput = document.getElementById('user-api-key-input').value.trim();
+    if (!keyInput) {
+        alert("कृपया पहले वैध API Key बॉक्स में पेस्ट करें!");
+        return;
+    }
+    localStorage.setItem('secure_gemini_api_key', keyInput);
+    alert("API Key आपके ब्राउज़र में सुरक्षित सेव कर दी गई है! 🔒");
+    document.getElementById('api-overlay').classList.remove('open');
+}
+
+function deleteApiKey() {
+    if(confirm("क्या आप सेव की गई API Key को हटाना चाहते हैं?")) {
+        localStorage.removeItem('secure_gemini_api_key');
+        document.getElementById('user-api-key-input').value = '';
+        alert("API Key हटा दी गई है।");
+    }
+}
+
+function loadSavedApiKey() {
+    const savedKey = localStorage.getItem('secure_gemini_api_key');
+    if (savedKey) {
+        document.getElementById('user-api-key-input').value = savedKey;
+    }
+}
+
+// Updated AI Generation Function using local storage keys
 async function generateAIQuiz() {
+    // Har request se pehle browser storage se fresh key uthayenge
+    const activeApiKey = localStorage.getItem('secure_gemini_api_key');
+    
+    if (!activeApiKey) {
+        alert("❌ AI क्विज़ खेलने के लिए पहले ऊपर दिए गए चाबी (🔑) वाले बटन पर क्लिक करके अपनी Gemini API Key सेव करें!");
+        document.getElementById('api-overlay').classList.add('open'); // Auto open settings box
+        return;
+    }
+
     const topicInput = document.getElementById('topic-search-input');
     const generateBtn = document.getElementById('ai-generate-btn');
 
@@ -79,31 +117,32 @@ async function generateAIQuiz() {
     generateBtn.disabled = true;
     generateBtn.innerText = "⏳ AI क्विज़ बना रहा है... कृपया रुकें...";
 
-    // Strict prompt schema jo JSON output engine ko force karega
-    const prompt = `Create a quiz with exactly 5 multiple choice questions on the topic: "\${topic}". 
-    The questions, options, and explanations must be written in neat, clear Hindi (using proper Devanagari script).
-    You must respond ONLY with a raw, valid JSON array matching this exact schema structural definition:
-    [
-      {
-        "question": "Question text in Hindi here?",
-        "options": ["Option 0", "Option 1", "Option 2", "Option 3"],
-        "correct": 0, 
-        "explanation": "Brief clean explanation in Hindi of why this option is correct."
-      }
-    ]
-    Crucial Instructions: 
-    1. The "correct" value must be an integer between 0 and 3 representing the index of the right option.
-    2. Do NOT wrap your output in markdown code blocks like \`\`\`json. Return only the raw JSON string.`;
-
     try {
-        const response = await ai.models.generateContent({
+        // Dynamic User Object Instance Initialization
+        const aiInstance = new GoogleGenAI({ apiKey: activeApiKey });
+        
+        const prompt = `Create a quiz with exactly 5 multiple choice questions on the topic: "\${topic}". 
+        The questions, options, and explanations must be written in neat, clear Hindi (using proper Devanagari script).
+        You must respond ONLY with a raw, valid JSON array matching this exact schema structural definition:
+        [
+          {
+            "question": "Question text in Hindi here?",
+            "options": ["Option 0", "Option 1", "Option 2", "Option 3"],
+            "correct": 0, 
+            "explanation": "Brief clean explanation in Hindi of why this option is correct."
+          }
+        ]
+        Crucial Instructions: 
+        1. The "correct" value must be an integer between 0 and 3 representing the index of the right option.
+        2. Do NOT wrap your output in markdown code blocks like \`\`\`json. Return only the raw JSON string.`;
+
+        const response = await aiInstance.models.generateContent({
             model: 'gemini-2.5-flash',
             contents: prompt,
         });
 
         let jsonText = response.text.trim();
         
-        // Safety Clean: Agar model markdown format backticks deta hai toh use trim karein
         if (jsonText.startsWith("```")) {
             jsonText = jsonText.replace(/^```json/, "").replace(/^```/, "").replace(/```$/, "").trim();
         }
@@ -119,60 +158,36 @@ async function generateAIQuiz() {
 
     } catch (error) {
         console.error("Gemini Engine Exception Error: ", error);
-        alert("क्विज़ जनरेट करने में समस्या आई। कृपया फिर से कोशिश करें या कोई दूसरा टॉपिक लिखें।");
+        alert("क्विज़ जनरेट करने में समस्या आई। जांचें कि आपकी API Key सही है या नहीं, और फिर से कोशिश करें।");
     } finally {
         generateBtn.disabled = false;
         generateBtn.innerText = "✨ AI से क्विज़ जनरेट करें";
     }
-                                                        }
+}
 // script.js - BHAAG 2
 function getAvatarUrl(name, photoUrl) {
     if (photoUrl && String(photoUrl).trim() !== '') {
         return photoUrl;
     }
-
     const safeName = (name || 'Guest Player').trim();
-    const initials = safeName
-        .split(/\s+/)
-        .filter(Boolean)
-        .slice(0, 2)
-        .map(word => word?.toUpperCase() || '')
-        .join('') || 'G';
-
+    const initials = safeName.split(/\s+/).filter(Boolean).slice(0, 2).map(word => word?.toUpperCase() || '').join('') || 'G';
     return `https://ui-avatars.com{encodeURIComponent(safeName)}&background=4f46e5&color=fff&bold=true&length=${initials.length}`;
 }
 
 function syncProfileData() {
     const tg = window.Telegram?.WebApp;
-
     if (tg && tg.initDataUnsafe && tg.initDataUnsafe.user) {
         const user = tg.initDataUnsafe.user;
-        console.log("Telegram Auth Session Verification Match Found!", user);
-
         globalPlayerName = user.first_name || "Player";
-        if (user.last_name) {
-            globalPlayerName += ` ${user.last_name}`;
-        }
-
-        const rawUsername = user.username ? `@${user.username}` : "None";
-        const rawId = user.id;
-        const rawLang = user.language_code ? user.language_code.toUpperCase() : "HI";
-
+        if (user.last_name) globalPlayerName += ` ${user.last_name}`;
+        
         document.getElementById('user-display-name').innerText = user.username ? `@${user.username}` : globalPlayerName;
         document.getElementById('meta-user-name').innerText = globalPlayerName;
-        document.getElementById('meta-user-username').innerText = rawUsername;
-        document.getElementById('meta-user-id').innerText = rawId;
-        document.getElementById('meta-user-lang').innerText = rawLang;
-
-        const avatarImg = document.getElementById('user-avatar');
-        avatarImg.src = getAvatarUrl(globalPlayerName, user.photo_url);
-        avatarImg.alt = globalPlayerName;
-
-        if (tg.colorScheme) {
-            document.body.setAttribute('data-tg-theme', tg.colorScheme);
-        }
+        document.getElementById('meta-user-username').innerText = user.username ? `@${user.username}` : "None";
+        document.getElementById('meta-user-id').innerText = user.id;
+        document.getElementById('meta-user-lang').innerText = user.language_code ? user.language_code.toUpperCase() : "HI";
+        document.getElementById('user-avatar').src = getAvatarUrl(globalPlayerName, user.photo_url);
     } else {
-        console.log("Telegram security data wrappers inaccessible. Loading generic local mock metadata sandbox configurations.");
         globalPlayerName = "Anonymous User";
         document.getElementById('user-display-name').innerText = "Guest Player";
         document.getElementById('meta-user-name').innerText = "Guest Mode";
@@ -184,9 +199,7 @@ function syncProfileData() {
 }
 
 function switchScreen(screenId) {
-    document.querySelectorAll('.screen').forEach(screen => {
-        screen.classList.remove('active');
-    });
+    document.querySelectorAll('.screen').forEach(screen => screen.classList.remove('active'));
     document.getElementById(screenId).classList.add('active');
 }
 
@@ -215,10 +228,8 @@ function loadQuestion() {
     nextBtn.innerText = currentQuestionIdx === dynamicQuizData.length - 1 ? 'परिणाम देखें ✅' : 'अगला प्रश्न ➡️';
 
     document.getElementById('question-counter').innerText = `प्रश्न: ${currentQuestionIdx + 1}/${dynamicQuizData.length}`;
-    
     const progressPercent = ((currentQuestionIdx + 1) / dynamicQuizData.length) * 100;
     document.getElementById('progress-bar').style.width = `${progressPercent}%`;
-
     document.getElementById('question-text').innerText = `[${currentQuestionIdx + 1}/${dynamicQuizData.length}] ${currentQuiz.question}`;
 
     const optionsList = document.getElementById('options-list');
@@ -231,58 +242,32 @@ function loadQuestion() {
 
         if (currentAnswer) {
             li.classList.add('disabled');
-
-            if (idx === currentAnswer.selectedIdx) {
-                li.classList.add(currentAnswer.isCorrect ? 'correct' : 'wrong');
-            }
-
-            if (idx === currentQuiz.correct && currentAnswer.selectedIdx !== currentQuiz.correct) {
-                li.classList.add('correct');
-            }
+            if (idx === currentAnswer.selectedIdx) li.classList.add(currentAnswer.isCorrect ? 'correct' : 'wrong');
+            if (idx === currentQuiz.correct && currentAnswer.selectedIdx !== currentQuiz.correct) li.classList.add('correct');
         }
-
-        li.onclick = () => {
-            if (currentAnswer) return;
-            selectOption(idx, li);
-        };
-
+        li.onclick = () => { if (!currentAnswer) selectOption(idx, li); };
         optionsList.appendChild(li);
     });
 
-    if (currentAnswer) {
-        showExplanation(currentQuiz.explanation, true);
-    } else {
-        startTimer();
-    }
+    if (currentAnswer) showExplanation(currentQuiz.explanation, true); else startTimer();
 }
 
 function startTimer() {
     timerInterval = setInterval(() => {
         timeLeft--;
         document.getElementById('time-left').innerText = timeLeft;
-
-        if (timeLeft <= 0) {
-            clearInterval(timerInterval);
-            autoTimeOut();
-        }
+        if (timeLeft <= 0) { clearInterval(timerInterval); autoTimeOut(); }
     }, 1000);
 }
 
 function selectOption(selectedIdx, selectedElement) {
-    if (answeredState[currentQuestionIdx]) {
-        return;
-    }
-
+    if (answeredState[currentQuestionIdx]) return;
     clearInterval(timerInterval);
     const currentQuiz = dynamicQuizData[currentQuestionIdx];
     const options = document.querySelectorAll('.option-item');
     const isCorrect = selectedIdx === currentQuiz.correct;
 
-    answeredState[currentQuestionIdx] = {
-        selectedIdx,
-        isCorrect
-    };
-
+    answeredState[currentQuestionIdx] = { selectedIdx, isCorrect };
     options.forEach(opt => opt.classList.add('disabled'));
 
     if (isCorrect) {
@@ -293,69 +278,37 @@ function selectOption(selectedIdx, selectedElement) {
         options[currentQuiz.correct].classList.add('correct');
         wrongAnswers++;
     }
-
     showExplanation(currentQuiz.explanation, true);
 }
 
 function autoTimeOut() {
-    if (answeredState[currentQuestionIdx]) {
-        return;
-    }
-
+    if (answeredState[currentQuestionIdx]) return;
     const currentQuiz = dynamicQuizData[currentQuestionIdx];
     const options = document.querySelectorAll('.option-item');
-
-    answeredState[currentQuestionIdx] = {
-        selectedIdx: -1,
-        isCorrect: false
-    };
-
+    answeredState[currentQuestionIdx] = { selectedIdx: -1, isCorrect: false };
     options.forEach(opt => opt.classList.add('disabled'));
     options[currentQuiz.correct].classList.add('correct');
     wrongAnswers++;
-
     showExplanation(`समय समाप्त! सही उत्तर: ${currentQuiz.explanation}`, true);
 }
 
 function showExplanation(text, forceShow = false) {
     const expBox = document.getElementById('explanation-box');
     const nextBtn = document.getElementById('next-btn');
-
-    if (text) {
-        expBox.innerHTML = `<b>📖 विवरण:</b> ${text}`;
-        expBox.style.display = 'block';
-    }
-
+    if (text) { expBox.innerHTML = `<b>📖 विवरण:</b> ${text}`; expBox.style.display = 'block'; }
     nextBtn.style.display = forceShow || text ? 'block' : 'none';
     nextBtn.innerText = currentQuestionIdx === dynamicQuizData.length - 1 ? 'परिणाम देखें ✅' : 'अगला प्रश्न ➡️';
 }
 
-function previousQuestion() {
-    if (currentQuestionIdx > 0) {
-        currentQuestionIdx--;
-        loadQuestion();
-    }
-}
-
-function nextQuestion() {
-    if (currentQuestionIdx < dynamicQuizData.length - 1) {
-        currentQuestionIdx++;
-        loadQuestion();
-    } else {
-        showResults();
-    }
-}
+function previousQuestion() { if (currentQuestionIdx > 0) { currentQuestionIdx--; loadQuestion(); } }
+function nextQuestion() { if (currentQuestionIdx < dynamicQuizData.length - 1) { currentQuestionIdx++; loadQuestion(); } else { showResults(); } }
+function restartQuiz() { switchScreen('start-screen'); }
 
 function showResults() {
     document.getElementById('progress-bar').style.width = '100%';
     switchScreen('result-screen');
-
     document.getElementById('result-user-name').innerText = globalPlayerName;
     document.getElementById('result-score').innerText = `${score}/${dynamicQuizData.length}`;
     document.getElementById('stat-correct').innerText = score;
     document.getElementById('stat-wrong').innerText = wrongAnswers;
-}
-
-function restartQuiz() {
-    switchScreen('start-screen');
-}
+        }
