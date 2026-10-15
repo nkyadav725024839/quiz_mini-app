@@ -19,6 +19,14 @@ export function initAppEngine() {
     document.getElementById('next-btn').onclick = nextQuestion;
     document.getElementById('prev-btn').onclick = previousQuestion;
     document.getElementById('restart-btn').onclick = restartQuiz;
+    // Finish button - finish anytime and show results
+    const finishBtn = document.getElementById('finish-btn');
+    if (finishBtn) {
+        finishBtn.onclick = () => {
+            clearInterval(timerInterval);
+            showResults();
+        };
+    }
 
     const overlay = document.getElementById('theme-overlay');
     document.getElementById('theme-trigger-btn').onclick = () => overlay.classList.add('open');
@@ -124,7 +132,8 @@ function loadQuestion() {
     nextBtn.innerText = currentQuestionIdx === quizData.length - 1 ? 'परिणाम देखें ✅' : 'अगला प्रश्न ➡️';
 
     document.getElementById('question-counter').innerText = `प्रश्न: ${currentQuestionIdx + 1}/${quizData.length}`;
-    const progressPercent = (currentQuestionIdx / quizData.length) * 100;
+    // show progress as completed fraction
+    const progressPercent = ((currentQuestionIdx + 1) / quizData.length) * 100;
     document.getElementById('progress-bar').style.width = `${progressPercent}%`;
 
     document.getElementById('question-text').innerText = `[${currentQuestionIdx + 1}/${quizData.length}] ${currentQuiz.question}`;
@@ -266,4 +275,4 @@ function showResults() {
 
 function restartQuiz() {
     switchScreen('start-screen');
-            }
+}
