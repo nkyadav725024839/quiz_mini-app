@@ -3,142 +3,125 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI Quiz Game Mini App</title>
+    <title>AI Quiz Mini App</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body class="theme-dark">
 
     <div class="quiz-container">
-        
+        <!-- Top Profile & Settings Bar -->
         <div class="top-bar">
-            <div class="user-pill" id="user-pill">
-                <img src="https://ui-avatars.com" id="user-avatar" alt="DP">
+            <div class="user-pill">
+                <img id="user-avatar" src="" alt="User Avatar">
                 <span id="user-display-name">Loading...</span>
             </div>
-            <button class="settings-btn" id="theme-trigger-btn">🎨</button>
+            <button id="theme-trigger-btn" class="settings-btn" title="थीम बदलें">⚙️</button>
         </div>
 
-        <div class="theme-overlay" id="theme-overlay">
-            <div class="theme-modal">
-                <h3>Choose Your Theme 🎨</h3>
-                <div class="theme-grid">
-                    <button class="theme-opt-btn" data-theme="theme-light-blue">Light Blue</button>
-                    <button class="theme-opt-btn data-active" data-theme="theme-dark">Dark Mode</button>
-                    <button class="theme-opt-btn" data-theme="theme-green">Green</button>
-                    <button class="theme-opt-btn" data-theme="theme-purple">Purple</button>
-                    <button class="theme-opt-btn" data-theme="theme-ocean">Ocean</button>
-                </div>
-                <button class="btn close-modal-btn" id="theme-close-btn">Close</button>
-            </div>
-        </div>
-
+        <!-- 1. HOME SCREEN (START ENGINE CONTEXT) -->
         <div id="start-screen" class="screen active">
-            <h1>🎲 प्रिमियम क्विज़ गेम</h1>
-            <p class="subtitle">अपनी तैयारी को परखें और स्कोर सुधारें!</p>
-            <div class="emoji-banner">🏆</div>
-            
-            <div class="profile-card">
-                <h4>💞 Your Profile 💞</h4>
-                <p>👤 नाम: <span id="meta-user-name" style="font-weight: bold; color: #a5b4fc;">Loading...</span></p>
-                <p>🏷️ यूज़रनेम: <span id="meta-user-username">Loading...</span></p>
-                <p>🪪 यूज़र ID: <span id="meta-user-id" style="font-family: monospace;">Loading...</span></p>
-                <p>🌐 भाषा: <span id="meta-user-lang">Loading...</span></p>
+            <div class="emoji-banner">🎯</div>
+            <h1>स्मार्ट AI क्विज़ गेम</h1>
+            <p class="subtitle">अपनी पसंद का कोई भी विषय खोजें या नीचे दिए बटन से डिफ़ॉल्ट क्विज़ शुरू करें!</p>
+
+            <!-- ✨ NEW: AI Generation Controls -->
+            <div style="margin-bottom: 25px; text-align: left;">
+                <input type="text" id="topic-search-input" placeholder="विषय का naam लिखें (जैसे: विज्ञान, इतिहास, JavaScript)..." 
+                       style="width: 100%; padding: 14px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.15); background: rgba(0,0,0,0.25); color: var(--text-light); font-size: 14px; box-sizing: border-box; outline: none;">
+                
+                <button id="ai-generate-btn" class="btn full-width" style="background: linear-gradient(135deg, #6366f1, #4f46e5); margin-top: 10px;">
+                    ✨ AI से क्विज़ जनरेट करें
+                </button>
             </div>
 
-            <button class="btn full-width" id="start-btn">क्विज़ शुरू करें</button>
+            <div style="text-align: center; margin: 15px 0; font-size: 12px; color: var(--text-muted); font-weight: bold;">— या पुराना तरीका चुनें —</div>
+
+            <button id="start-btn" class="btn full-width secondary-btn" style="margin-bottom: 20px;">
+                🚀 डिफ़ॉल्ट क्विज़ खेलें
+            </button>
+
+            <!-- Metadata Profile Card -->
+            <div class="profile-card">
+                <h4>📊 प्लेयर प्रोफ़ाइल डेटा</h4>
+                <p>नाम: <span id="meta-user-name">---</span></p>
+                <p>यूज़रनेम: <span id="meta-user-username">---</span></p>
+                <p>आईडी (ID): <span id="meta-user-id">---</span></p>
+                <p>भाषा (Lang): <span id="meta-user-lang">---</span></p>
+            </div>
         </div>
 
+        <!-- 2. QUIZ RUNTIME SCREEN -->
         <div id="quiz-screen" class="screen">
             <div class="quiz-header">
-                <span id="question-counter">प्रश्न: 1/5</span>
-                <span class="timer">⏰ <span id="time-left">15</span>s</span>
+                <span id="question-counter">प्रश्न: 0/0</span>
+                <div class="timer">⏱️ <span id="time-left">15</span>s</div>
             </div>
-            
+
+            <!-- Visual Progress Tracker -->
             <div class="progress-bar-container">
                 <div id="progress-bar" class="progress-bar"></div>
             </div>
 
-            <div id="question-text" class="question-text">प्रश्न यहाँ लोड होगा...</div>
-            
+            <div id="question-text" class="question-text">Loading question text...</div>
+
+            <!-- Target Rendering Engine Wrapper -->
             <ul id="options-list" class="options-list"></ul>
 
+            <!-- Dynamic Markdown Context Explanation Viewport Container -->
             <div id="explanation-box" class="explanation-box"></div>
 
+            <!-- Quiz Navigation Layout Bar -->
             <div class="quiz-nav">
                 <button id="prev-btn" class="btn nav-btn secondary-btn" style="display: none;">⬅️ पिछला</button>
-                <button id="finish-btn" class="btn nav-btn secondary-btn">समाप्त करें ⏹️</button>
+                <button id="finish-btn" class="btn nav-btn secondary-btn">समाप्त 🏁</button>
                 <button id="next-btn" class="btn nav-btn" style="display: none;">अगला प्रश्न ➡️</button>
             </div>
         </div>
 
+        <!-- 3. PERFORMANCE RESULTS DASHBOARD VIEW -->
         <div id="result-screen" class="screen">
-            <h1>🏁 क्विज़ समाप्त!</h1>
-            <p class="subtitle">बधाई हो <span id="result-user-name" style="color: #a5b4fc; font-weight: bold;">Player</span>, यहाँ आपका अंतिम परिणाम �[...]</p>
-            
-            <div id="result-score" class="result-score">0/5</div>
-            
+            <div class="emoji-banner">🏆</div>
+            <h1>क्विज़ परिणाम</h1>
+            <p class="subtitle">बधाई हो, <span id="result-user-name" style="font-weight: bold; color: var(--primary-color);">प्लेयर</span>! आपने परीक्षा पूरी कर ली है।</p>
+
+            <div id="result-score" class="result-score">0/0</div>
+
             <div class="stat-box">
                 <div class="stat-item">
-                    <span>सही जवाब</span>
+                    <span>सही उत्तर</span>
                     <strong id="stat-correct" class="text-success">0</strong>
                 </div>
                 <div class="stat-item">
-                    <span>गलत जवाब</span>
+                    <span>गलत/समय समाप्त</span>
                     <strong id="stat-wrong" class="text-error">0</strong>
                 </div>
             </div>
 
-            <button class="btn full-width" id="restart-btn">फिर से खेलें ✨</button>
+            <button id="restart-btn" class="btn full-width">🔄 मुख्य स्क्रीन पर जाएं</button>
         </div>
-
     </div>
 
-    <script>
-        if (!window.Telegram || !window.Telegram.WebApp) {
-            window.Telegram = {
-                WebApp: {
-                    initDataUnsafe: {
-                        user: {
-                            id: 123456789,
-                            first_name: "Nikhil",
-                            last_name: "Yadav",
-                            username: "nkyadav725024839",
-                            language_code: "hi",
-                            photo_url: ""
-                        }
-                    },
-                    colorScheme: "light",
-                    ready: function () {
-                        console.log("Mock Telegram.WebApp.ready()");
-                    },
-                    expand: function () {
-                        console.log("Mock Telegram.WebApp.expand()");
-                    }
-                }
-            };
-            console.log("Mock Telegram WebApp loaded for local testing.");
-        }
-    </script>
+    <!-- 4. MODAL PALETTE ENGINE SELECTOR LAYOUT -->
+    <div id="theme-overlay" class="theme-overlay">
+        <div class="theme-modal">
+            <h3>🎨 एक सुंदर थीम चुनें</h3>
+            <div class="theme-grid">
+                <button class="theme-opt-btn data-active" data-theme="theme-dark">डार्क नाइट</button>
+                <button class="theme-opt-btn" data-theme="theme-light-blue">लाइट ब्लू</button>
+                <button class="theme-opt-btn" data-theme="theme-green">फॉरेस्ट ग्रीन</button>
+                <button class="theme-opt-btn" data-theme="theme-purple">रॉयल पर्पल</button>
+                <button class="theme-opt-btn" data-theme="theme-ocean">ओशन वेव</button>
+            </div>
+            <button id="theme-close-btn" class="btn full-width close-modal-btn">बंद करें</button>
+        </div>
+    </div>
 
-    <script src="https://telegram.org/js/telegram-web-app.js"></script>
-
+    <!-- Application Operational Module Bootstrap -->
     <script type="module">
         import { initAppEngine } from './script.js';
-
-        function bootstrap() {
-            const tg = window.Telegram?.WebApp;
-            if (tg) {
-                if (typeof tg.ready === 'function') tg.ready();
-                if (typeof tg.expand === 'function') tg.expand();
-            }
+        document.addEventListener('DOMContentLoaded', () => {
             initAppEngine();
-        }
-
-        if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', bootstrap);
-        } else {
-            bootstrap();
-        }
+        });
     </script>
 </body>
 </html>
